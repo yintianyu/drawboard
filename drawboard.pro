@@ -37,3 +37,6 @@ FORMS    += mainwindow.ui \
 
 RESOURCES += \
     myicon.qrc
+
+# Added Manually for print support
+qtHaveModule(printsupport): QT += printsupport
