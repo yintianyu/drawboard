@@ -245,10 +245,10 @@
      <normaloff>:/myicons/Icons/New.png</normaloff>:/myicons/Icons/New.png</iconset>
    </property>
    <property name="text">
-    <string>New ⌘N</string>
+    <string>New</string>
    </property>
    <property name="toolTip">
-    <string>New ⌘N</string>
+    <string>New</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
@@ -260,7 +260,7 @@
      <normaloff>:/myicons/Icons/Open.png</normaloff>:/myicons/Icons/Open.png</iconset>
    </property>
    <property name="text">
-    <string>Open ⌘O</string>
+    <string>Open</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -272,10 +272,10 @@
      <normaloff>:/myicons/Icons/Save.png</normaloff>:/myicons/Icons/Save.png</iconset>
    </property>
    <property name="text">
-    <string>Save  ⌘S</string>
+    <string>Save</string>
    </property>
    <property name="toolTip">
-    <string>Save ⌘+S</string>
+    <string>Save</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -296,10 +296,10 @@
      <normaloff>:/myicons/Icons/Print.png</normaloff>:/myicons/Icons/Print.png</iconset>
    </property>
    <property name="text">
-    <string>Print ⌘P</string>
+    <string>Print</string>
    </property>
    <property name="toolTip">
-    <string>Print ⌘+P</string>
+    <string>Print</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
@@ -307,7 +307,10 @@
   </action>
   <action name="actionExit">
    <property name="text">
-    <string>Exit ⌘Q</string>
+    <string>Exit</string>
+   </property>
+   <property name="toolTip">
+    <string>Exit</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>

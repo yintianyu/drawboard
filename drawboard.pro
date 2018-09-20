@@ -25,12 +25,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    paintarea.cpp
+    paintarea.cpp \
+    donewdialog.cpp
 
 HEADERS  += mainwindow.h \
-    paintarea.h
+    paintarea.h \
+    donewdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    donewdialog.ui
 
 RESOURCES += \
     myicon.qrc

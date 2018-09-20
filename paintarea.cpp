@@ -47,3 +47,19 @@ void PaintArea::paint(QImage &theImage)
     update();
 }
 
+void PaintArea::setImageSize(int width, int height)
+{
+    QImage newImage(width, height, QImage::Format_RGB32);
+    image = newImage;
+    update();
+}
+
+void PaintArea::setImageColor(QColor color)
+{
+    backColor = color.rgb(); // convert the color to rgb type
+    image.fill(backColor);
+    update();
+}
+
+//bool PaintArea::saveImage(const)
+

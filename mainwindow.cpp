@@ -19,3 +19,16 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+void MainWindow::on_action_N_triggered()
+{
+    DoNewDialog dialog;
+    if(dialog.exec() == QDialog::Accepted)
+    {
+        int width = dialog.getWidth();
+        int height = dialog.getHeight();
+        area->setImageSize(width, height);
+        scrollArea->widget()->resize(width, height);
+        area->setImageColor(dialog.getBackColor());
+    }
+}

@@ -11,6 +11,14 @@ class PaintArea : public QWidget
     Q_OBJECT
 public:
     explicit PaintArea(QWidget *parent = 0);
+    void setImageSize(int width, int height);
+    void setImageColor(QColor color);
+//    bool isModified() const // Inner Function
+//    {
+//        return modified;
+//    }
+//    bool saveImage(const QString &fileName, const char *fileFormat); // Save Image
+//    bool openImage(const QString &fileName); // Open Pictures
 
 signals:
 
@@ -24,6 +32,7 @@ private:
     QImage image;
     QRgb backColor;
     QPoint lastPoint, endPoint;
+//    bool modified;
     void paint(QImage &theImage);
 };
 
