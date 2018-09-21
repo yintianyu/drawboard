@@ -15,6 +15,11 @@ public:
     explicit PaintArea(QWidget *parent = 0);
     void setImageSize(int width, int height);
     void setImageColor(QColor color);
+    QColor getBackColor()
+    {
+        return QColor(backColor);
+    }
+
     bool isModified() const // Inner Function
     {
         return modified;
@@ -24,6 +29,29 @@ public:
     QSize getImageSize();
     //Print
     void doPrint();
+
+    // Edit Menu
+    void zoomIn();
+    void zoomOut();
+    void resume();
+    void doRotate();
+    void doStretch();
+    void doClear();
+
+    // Tool bar
+    void setPenStyle(Qt::PenStyle style);
+    void setPenWidth(int width);
+    void setPenColor(QColor color);
+    void setBrushColor(QColor color);
+
+    enum ShapeType
+    {
+        None,
+        Line,
+        Rectangle,
+        Ellipse
+    };
+    void setShape(ShapeType shape);
 
 signals:
 
@@ -39,6 +67,18 @@ private:
     QPoint lastPoint, endPoint;
     bool modified;
     void paint(QImage &theImage);
+
+    // Edit Menu
+    qreal scale;  // zoom scale
+    int angle;  // rotate angle
+    qreal stretch; // stretch value
+
+    // Tool bar
+    QColor penColor;
+    QColor brushColor;
+    int penWidth;
+    Qt::PenStyle penStyle;
+    ShapeType currentShape;
 };
 
 #endif // PAINTAREA_H

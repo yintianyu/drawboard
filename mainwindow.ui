@@ -130,12 +130,12 @@
      </property>
      <item>
       <property name="text">
-       <string>Full Line</string>
+       <string>Solid Line</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Dotted Line</string>
+       <string>Dot Line</string>
       </property>
      </item>
     </widget>
