@@ -1,4 +1,5 @@
 #include "paintarea.h"
+#include <iostream>
 
 PaintArea::PaintArea(QWidget *parent) : QWidget(parent)
 {
@@ -18,24 +19,44 @@ PaintArea::PaintArea(QWidget *parent) : QWidget(parent)
     penWidth = 1;
     penStyle = Qt::SolidLine;
     currentShape = None;
+
+    // Solve bug
+    isDrawing = false;
 }
 
 void PaintArea::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     painter.scale(scale, scale);
-    if(angle)
+    if(isDrawing == true)
     {
-        QPointF center(image.width() / 2.0, image.height() / 2.0);
-        painter.translate(center);
-        painter.rotate(angle);
-        painter.translate(-center);
+        painter.drawImage(0, 0, tempImage);
     }
-    if(stretch != 0)
+    else
     {
-        painter.shear(stretch, stretch);
+        if(angle)
+        {
+            QImage copyImage = image;
+            QPainter pp(&copyImage);
+            QPointF center(copyImage.width() / 2.0, copyImage.height() / 2.0);
+            pp.translate(center);
+            pp.rotate(angle);
+            pp.translate(-center);
+            pp.drawImage(0, 0, image);
+            image = copyImage;
+            angle = 0;
+        }
+        if(stretch != 0)
+        {
+            QImage copyImage = image;
+            QPainter pp(&copyImage);
+            pp.shear(stretch, stretch);
+            pp.drawImage(0, 0, image);
+            image = copyImage;
+            stretch = 0;
+        }
+        painter.drawImage(0, 0, image);
     }
-    painter.drawImage(0, 0, image);
 }
 
 void PaintArea::mousePressEvent(QMouseEvent *event)
@@ -43,6 +64,7 @@ void PaintArea::mousePressEvent(QMouseEvent *event)
     if(event->button() == Qt::LeftButton)
     {
         lastPoint = event->pos();
+        isDrawing = true;
     }
 }
 
@@ -51,7 +73,17 @@ void PaintArea::mouseMoveEvent(QMouseEvent *event)
     if(event->buttons() & Qt::LeftButton)
     {
         endPoint = event->pos();
-        paint(image);
+        if(currentShape ==None)
+        {
+            isDrawing = false;
+            paint(image);
+        }
+        else
+        {
+            tempImage = image;
+            paint(tempImage);
+        }
+
     }
 }
 
@@ -60,6 +92,7 @@ void PaintArea::mouseReleaseEvent(QMouseEvent *event)
     if(event->button() == Qt::LeftButton)
     {
         endPoint = event->pos();
+        isDrawing = false;
         paint(image);
     }
 }
@@ -76,19 +109,19 @@ void PaintArea::paint(QImage &theImage)
     pp.setBrush(brush);
 
     int x, y, w, h;
-    x = lastPoint.x();
-    y = lastPoint.y();
-    w = endPoint.x() - x;
-    h = endPoint.y() - y;
+    x = lastPoint.x() / scale;
+    y = lastPoint.y() / scale;
+    w = endPoint.x() / scale - x;
+    h = endPoint.y() / scale - y;
 
     switch(currentShape)
     {
     case None:
-        pp.drawLine(lastPoint, endPoint);
+        pp.drawLine(lastPoint / scale, endPoint / scale);
         lastPoint = endPoint;
         break;
     case Line:
-        pp.drawLine(lastPoint, endPoint);
+        pp.drawLine(lastPoint / scale, endPoint / scale);
         break;
     case Rectangle:
         pp.drawRect(x, y, w, h);
@@ -146,7 +179,8 @@ bool PaintArea::openImage(const QString &fileName)
 
 QSize PaintArea::getImageSize()
 {
-    return image.size();
+    QSize copySize = image.size();
+    return copySize * scale;
 }
 
 void PaintArea::doPrint()

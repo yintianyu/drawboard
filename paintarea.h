@@ -79,6 +79,10 @@ private:
     int penWidth;
     Qt::PenStyle penStyle;
     ShapeType currentShape;
+
+    // Sovle bug
+    QImage tempImage;
+    bool isDrawing;
 };
 
 #endif // PAINTAREA_H

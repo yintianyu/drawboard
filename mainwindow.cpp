@@ -193,6 +193,7 @@ void MainWindow::on_actionPrint_P_triggered()
 void MainWindow::on_actionZoom_In_triggered()
 {
     area->zoomIn();
+    scrollArea->widget()->resize(area->getImageSize());
 }
 
 void MainWindow::on_actionZoom_Out_triggered()
