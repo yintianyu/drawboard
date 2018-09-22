@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    resize(700, 500);
+    resize(1920, 1080);
     area = new PaintArea;
     scrollArea = new QScrollArea;
     scrollArea->setBackgroundRole(QPalette::Dark);
@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // Tool Bar
     creatColorComboBox(ui->penColorComboBox);
     creatColorComboBox(ui->brushColorComboBox);
+
+//    scrollArea->setWidgetResizable(true);
 }
 
 MainWindow::~MainWindow()
@@ -199,6 +201,7 @@ void MainWindow::on_actionZoom_In_triggered()
 void MainWindow::on_actionZoom_Out_triggered()
 {
     area->zoomOut();
+    scrollArea->widget()->resize(area->getImageSize());
 }
 
 void MainWindow::on_actionResume_triggered()
@@ -209,6 +212,8 @@ void MainWindow::on_actionResume_triggered()
 void MainWindow::on_actionRotate_triggered()
 {
     area->doRotate();
+    scrollArea->widget()->resize(area->getImageSize());
+    update();
 }
 
 void MainWindow::on_actionStretch_triggered()

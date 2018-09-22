@@ -67,6 +67,7 @@ private:
     QPoint lastPoint, endPoint;
     bool modified;
     void paint(QImage &theImage);
+    void paintAsAngle(QPainter &painter, QImage &theImage);
 
     // Edit Menu
     qreal scale;  // zoom scale
@@ -83,6 +84,8 @@ private:
     // Sovle bug
     QImage tempImage;
     bool isDrawing;
+
+    QPoint originPoint;
 };
 
 #endif // PAINTAREA_H

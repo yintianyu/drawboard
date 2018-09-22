@@ -13,6 +13,7 @@ PaintArea::PaintArea(QWidget *parent) : QWidget(parent)
     angle = 0;
     stretch = 0;
 
+
     // Tool bar
     penColor = Qt::black;
     brushColor = Qt::black;
@@ -22,6 +23,8 @@ PaintArea::PaintArea(QWidget *parent) : QWidget(parent)
 
     // Solve bug
     isDrawing = false;
+    originPoint.setX(0);
+    originPoint.setY(0);
 }
 
 void PaintArea::paintEvent(QPaintEvent *)
@@ -30,32 +33,43 @@ void PaintArea::paintEvent(QPaintEvent *)
     painter.scale(scale, scale);
     if(isDrawing == true)
     {
-        painter.drawImage(0, 0, tempImage);
+        paintAsAngle(painter, tempImage);
     }
     else
     {
-        if(angle)
-        {
-            QImage copyImage = image;
-            QPainter pp(&copyImage);
-            QPointF center(copyImage.width() / 2.0, copyImage.height() / 2.0);
-            pp.translate(center);
-            pp.rotate(angle);
-            pp.translate(-center);
-            pp.drawImage(0, 0, image);
-            image = copyImage;
-            angle = 0;
-        }
-        if(stretch != 0)
-        {
-            QImage copyImage = image;
-            QPainter pp(&copyImage);
-            pp.shear(stretch, stretch);
-            pp.drawImage(0, 0, image);
-            image = copyImage;
-            stretch = 0;
-        }
-        painter.drawImage(0, 0, image);
+        paintAsAngle(painter, image);
+    }
+
+}
+
+void PaintArea::paintAsAngle(QPainter &painter, QImage &theImage)
+{
+    if(angle == 90)
+    {
+        painter.translate(originPoint);
+        painter.shear(stretch, stretch);
+        painter.rotate(angle);
+        painter.drawImage(0, 0, theImage);
+    }
+    else if(angle == 180)
+    {
+        painter.translate(originPoint);
+        painter.shear(stretch, stretch);
+        painter.rotate(angle);
+        painter.drawImage(0, 0, theImage);
+
+    }
+    else if(angle == 270)
+    {
+        painter.translate(originPoint);
+        painter.shear(stretch, stretch);
+        painter.rotate(angle);
+        painter.drawImage(0, 0, theImage);
+    }
+    else if(angle == 0)
+    {
+        painter.shear(stretch, stretch);
+        painter.drawImage(0, 0, theImage);
     }
 }
 
@@ -108,20 +122,52 @@ void PaintArea::paint(QImage &theImage)
     pp.setPen(pen);
     pp.setBrush(brush);
 
-    int x, y, w, h;
-    x = lastPoint.x() / scale;
-    y = lastPoint.y() / scale;
-    w = endPoint.x() / scale - x;
-    h = endPoint.y() / scale - y;
+    qreal x, y, w, h, e_x, e_y;
+    if(angle == 90)
+    {
+        x = lastPoint.y() / scale;
+        y = (image.height() * scale - lastPoint.x()) / scale;
+        e_x = endPoint.y() / scale;
+        e_y = (image.height() * scale - endPoint.x()) / scale;
+        w = e_x - x;
+        h = e_y - y;
+    }
+    else if (angle == 180)
+    {
+        x = (originPoint.x() * scale - lastPoint.x()) / scale;
+        y = (originPoint.y() * scale - lastPoint.y()) / scale;
+        e_x = (originPoint.x() * scale - endPoint.x()) / scale;
+        e_y = (originPoint.y() * scale - endPoint.y()) / scale;
+        w = e_x - x;
+        h = e_y - y;
+    }
+    else if(angle == 270)
+    {
+        x = (originPoint.y() * scale - lastPoint.y()) / scale;
+        y = (lastPoint.x()) / scale;
+        e_x = (originPoint.y() * scale - endPoint.y()) / scale;
+        e_y = (endPoint.x()) / scale;
+        w = e_x - x;
+        h = e_y - y;
+    }
+    else
+    {
+        x = lastPoint.x() / scale;
+        y = lastPoint.y() / scale;
+        e_x = endPoint.x() / scale;
+        e_y = endPoint.y() / scale;
+        w = e_x - x;
+        h = e_y - y;
+    }
 
     switch(currentShape)
     {
     case None:
-        pp.drawLine(lastPoint / scale, endPoint / scale);
+        pp.drawLine(x, y, e_x, e_y);
         lastPoint = endPoint;
         break;
     case Line:
-        pp.drawLine(lastPoint / scale, endPoint / scale);
+        pp.drawLine(x, y, e_x, e_y);
         break;
     case Rectangle:
         pp.drawRect(x, y, w, h);
@@ -180,6 +226,10 @@ bool PaintArea::openImage(const QString &fileName)
 QSize PaintArea::getImageSize()
 {
     QSize copySize = image.size();
+    for(int i = 0;i < angle;i += 90)
+    {
+        copySize.transpose();
+    }
     return copySize * scale;
 }
 
@@ -222,6 +272,29 @@ void PaintArea::resume()
 void PaintArea::doRotate()
 {
     angle += 90;
+    angle %= 360;
+    switch(angle)
+    {
+    case 0:
+        originPoint.setX(0);
+        originPoint.setY(0);
+        break;
+    case 90:
+        originPoint.setX(image.height());
+        originPoint.setY(0);
+        break;
+    case 180:
+        originPoint.setX(image.width());
+        originPoint.setY(image.height());
+        break;
+    case 270:
+        originPoint.setX(0);
+        originPoint.setY(image.width());
+        break;
+    default:
+        break;
+    }
+
     update();
 }
 
