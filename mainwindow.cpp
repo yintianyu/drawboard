@@ -249,6 +249,14 @@ void MainWindow::on_shapeComboBox_currentIndexChanged(const QString &arg1)
     {
         area->setShape(PaintArea::Ellipse);
     }
+    else if(arg1 == tr("Blur"))
+    {
+        area->setShape(PaintArea::Blur);
+    }
+    else if(arg1 == tr("Sharper"))
+    {
+        area->setShape(PaintArea::Sharpen);
+    }
 }
 
 void MainWindow::on_penStyleComboBox_currentIndexChanged(const QString &arg1)
@@ -278,4 +286,20 @@ void MainWindow::on_brushColorComboBox_currentIndexChanged(int index)
 {
     QColor color = ui->brushColorComboBox->itemData(index, Qt::UserRole).value<QColor>();
     area->setBrushColor(color);
+}
+
+void MainWindow::on_actionGray_Image_triggered() // Gray Image's slot
+{
+    area->doGrey();
+}
+
+/*
+ * Summary: Slot of light ajustment slider
+ * position varies from -255~255
+ *
+ */
+void MainWindow::on_lightHorizontalSlider_sliderMoved(int position)
+{
+    position = 0;
+    return;
 }

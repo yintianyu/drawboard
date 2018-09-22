@@ -73,6 +73,10 @@ private slots:
 
     void on_brushColorComboBox_currentIndexChanged(int index);
 
+    void on_actionGray_Image_triggered();
+
+    void on_lightHorizontalSlider_sliderMoved(int position);
+
 private:
     Ui::MainWindow *ui;
     PaintArea *area;

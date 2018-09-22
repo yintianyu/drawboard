@@ -12,6 +12,7 @@ PaintArea::PaintArea(QWidget *parent) : QWidget(parent)
     scale = 1;
     angle = 0;
     stretch = 0;
+//    lastLightDelta = 0;
 
 
     // Tool bar
@@ -87,7 +88,7 @@ void PaintArea::mouseMoveEvent(QMouseEvent *event)
     if(event->buttons() & Qt::LeftButton)
     {
         endPoint = event->pos();
-        if(currentShape ==None)
+        if(currentShape ==None || currentShape == Blur || currentShape == Sharpen)
         {
             isDrawing = false;
             paint(image);
@@ -113,14 +114,6 @@ void PaintArea::mouseReleaseEvent(QMouseEvent *event)
 
 void PaintArea::paint(QImage &theImage)
 {
-    QPainter pp(&theImage);
-    QPen pen = QPen();
-    pen.setColor(penColor);
-    pen.setStyle(penStyle);
-    pen.setWidth(penWidth);
-    QBrush brush = QBrush(brushColor);
-    pp.setPen(pen);
-    pp.setBrush(brush);
 
     qreal x, y, w, h, e_x, e_y;
     if(angle == 90)
@@ -159,22 +152,45 @@ void PaintArea::paint(QImage &theImage)
         w = e_x - x;
         h = e_y - y;
     }
-
-    switch(currentShape)
+    if(currentShape == Blur)
     {
-    case None:
-        pp.drawLine(x, y, e_x, e_y);
-        lastPoint = endPoint;
-        break;
-    case Line:
-        pp.drawLine(x, y, e_x, e_y);
-        break;
-    case Rectangle:
-        pp.drawRect(x, y, w, h);
-        break;
-    case Ellipse:
-        pp.drawEllipse(x, y, w, h);
-        break;
+        theImage = *(blur(&theImage, QPoint(e_x, e_y)));
+    }
+    else if(currentShape == Sharpen)
+    {
+        theImage = *(sharpen(&theImage, QPoint(e_x, e_y)));
+    }
+    else
+    {
+        QPainter pp(&theImage);
+        QPen pen = QPen();
+        pen.setColor(penColor);
+        pen.setStyle(penStyle);
+        pen.setWidth(penWidth);
+        QBrush brush = QBrush(brushColor);
+        pp.setPen(pen);
+        pp.setBrush(brush);
+
+        switch(currentShape)
+        {
+        case None:
+            pp.drawLine(x, y, e_x, e_y);
+            lastPoint = endPoint;
+            break;
+        case Line:
+            pp.drawLine(x, y, e_x, e_y);
+            break;
+        case Rectangle:
+            pp.drawRect(x, y, w, h);
+            break;
+        case Ellipse:
+            pp.drawEllipse(x, y, w, h);
+            break;
+        case Blur:
+            break;
+        case Sharpen:
+            break;
+        }
     }
     update();
     modified = true;
@@ -337,3 +353,117 @@ void PaintArea::setShape(ShapeType shape)
 }
 
 
+// Adcanced Tools
+void PaintArea::doGrey()
+{
+    image = *(greyScale(&image));
+    update();
+}
+
+QImage* PaintArea::greyScale(QImage *origin)
+{
+    QImage *newImage = new QImage(origin->width(), origin->height(), QImage::Format_RGB32);
+    QRgb *line = nullptr;
+    for(int y = 0;y < newImage->height();y++)
+    {
+        line = (QRgb*)origin->scanLine(y);
+        for(int x = 0;x < newImage->width();x++)
+        {
+            int average = (qRed(line[x]) + qGreen(line[x]) + qRed(line[x])) / 3;
+            newImage->setPixel(x, y, qRgb(average, average, average));
+        }
+    }
+    return newImage;
+}
+
+//void PaintArea::lightAjustment(QImage *origin, int position)
+//{
+//    QImage *newImage = new QImage(origin->width(), origin->height(), QImage::Format_RGB32);
+//    int delta = position - lastLightDelta;
+//    QRgb *line = nullptr;
+//    for(int y = 0;y < newImage->height();y++)
+//    {
+//        line = (QRgb*)origin->scanLine(y);
+
+//    }
+//}
+QImage* PaintArea::blur(QImage *origin, QPoint point)
+{
+    QImage *newImage = new QImage(*origin);
+    int kernel [5][5] = {{0,0,1,0,0},
+                         {0,1,3,1,0},
+                         {1,3,7,3,1},
+                         {0,1,3,1,0},
+                         {0,0,1,0,0}};
+    int kernelSize = 5;
+    int penSize = 10; // r = 10
+    int sumKernel = 27;
+    int r, g, b;
+    QColor color;
+    int x_min = largerOne(point.x() - penSize, kernelSize / 2);
+    int x_max = smallerOne(point.x() + penSize, newImage->width() - kernelSize / 2);
+    int y_min = largerOne(point.y() - penSize, kernelSize / 2);
+    int y_max = smallerOne(point.y() + penSize, newImage->height() - kernelSize / 2);
+    for(int y = y_min;y <= y_max;y++)
+    {
+        for(int x = x_min; x <= x_max;x++)
+        {
+            r = g = b = 0;
+            for(int i = -kernelSize/2; i<= kernelSize/2; i++)
+            {
+                for(int j = -kernelSize/2; j<= kernelSize/2; j++)
+                {
+                    color = QColor(origin->pixel(x+i, y+j));
+                    r += color.red() * kernel[kernelSize/2+i][kernelSize/2+j];
+                    g += color.green() * kernel[kernelSize/2+i][kernelSize/2+j];
+                    b += color.blue() * kernel[kernelSize/2+i][kernelSize/2+j];
+                }
+            }
+            r = qBound(0, r / sumKernel, 255);
+            g = qBound(0, g / sumKernel, 255);
+            b = qBound(0, b / sumKernel, 255);
+            newImage->setPixel(x, y, qRgb(r, g, b));
+        }
+    }
+    return newImage;
+}
+
+QImage* PaintArea::sharpen(QImage *origin, QPoint point)
+{
+    QImage *newImage = new QImage(*origin);
+    int kernel [3][3] = {{0, -1, 0},
+                         {-1, 5, -1},
+                         {0, -1, 0}};
+
+    int kernelSize = 3;
+    int sumKernel = 1;
+    int penSize = 5;
+    int r, g, b;
+    QColor color;
+    int x_min = largerOne(point.x() - penSize, kernelSize / 2);
+    int x_max = smallerOne(point.x() + penSize, newImage->width() - kernelSize / 2);
+    int y_min = largerOne(point.y() - penSize, kernelSize / 2);
+    int y_max = smallerOne(point.y() + penSize, newImage->height() - kernelSize / 2);
+    for(int y = y_min;y <= y_max;y++)
+    {
+        for(int x = x_min; x <= x_max;x++)
+        {
+            r = g = b = 0;
+            for(int i = -kernelSize/2; i<= kernelSize/2; i++)
+            {
+                for(int j = -kernelSize/2; j<= kernelSize/2; j++)
+                {
+                    color = QColor(origin->pixel(x+i, y+j));
+                    r += color.red() * kernel[kernelSize/2+i][kernelSize/2+j];
+                    g += color.green() * kernel[kernelSize/2+i][kernelSize/2+j];
+                    b += color.blue() * kernel[kernelSize/2+i][kernelSize/2+j];
+                }
+            }
+            r = qBound(0, r / sumKernel, 255);
+            g = qBound(0, g / sumKernel, 255);
+            b = qBound(0, b / sumKernel, 255);
+            newImage->setPixel(x, y, qRgb(r, g, b));
+        }
+    }
+    return newImage;
+}

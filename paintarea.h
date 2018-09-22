@@ -38,6 +38,10 @@ public:
     void doStretch();
     void doClear();
 
+    // Advanced Tools
+    void doGrey();
+//    void doLight();
+
     // Tool bar
     void setPenStyle(Qt::PenStyle style);
     void setPenWidth(int width);
@@ -49,7 +53,9 @@ public:
         None,
         Line,
         Rectangle,
-        Ellipse
+        Ellipse,
+        Blur,
+        Sharpen
     };
     void setShape(ShapeType shape);
 
@@ -69,6 +75,13 @@ private:
     void paint(QImage &theImage);
     void paintAsAngle(QPainter &painter, QImage &theImage);
 
+    // Advanced Tools
+    QImage* greyScale(QImage *ogirin);
+//    QImage* lightAjustment(QImage *origin, int position);
+//    int lastLightDelta; // Record light delta last time
+    QImage* blur(QImage *origin, QPoint point);
+    QImage* sharpen(QImage *origin, QPoint point);
+
     // Edit Menu
     qreal scale;  // zoom scale
     int angle;  // rotate angle
@@ -86,6 +99,27 @@ private:
     bool isDrawing;
 
     QPoint originPoint;
+
+    QList<int> expandedImage;
+
+    //Inline Functions
+    template<typename T>
+    T smallerOne(T a, T b)
+    {
+        if(a > b)
+            return b;
+        else
+            return a;
+    }
+
+    template<typename T>
+    T largerOne(T a, T b)
+    {
+        if(a > b)
+            return a;
+        else
+            return b;
+    }
 };
 
 #endif // PAINTAREA_H
