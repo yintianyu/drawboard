@@ -75,7 +75,8 @@ private slots:
 
     void on_actionGray_Image_triggered();
 
-    void on_lightHorizontalSlider_sliderMoved(int position);
+
+    void on_actionRedo_triggered();
 
 private:
     Ui::MainWindow *ui;

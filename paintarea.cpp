@@ -80,6 +80,10 @@ void PaintArea::mousePressEvent(QMouseEvent *event)
     {
         lastPoint = event->pos();
         isDrawing = true;
+        if(currentShape ==None || currentShape == Blur || currentShape == Sharpen)
+        {
+            images.push(image);
+        }
     }
 }
 
@@ -108,6 +112,10 @@ void PaintArea::mouseReleaseEvent(QMouseEvent *event)
     {
         endPoint = event->pos();
         isDrawing = false;
+        if(currentShape !=None && currentShape != Blur && currentShape != Sharpen)
+        {
+            images.push(image);
+        }
         paint(image);
     }
 }
@@ -356,6 +364,7 @@ void PaintArea::setShape(ShapeType shape)
 // Adcanced Tools
 void PaintArea::doGrey()
 {
+    images.push(image);
     image = *(greyScale(&image));
     update();
 }
@@ -466,4 +475,13 @@ QImage* PaintArea::sharpen(QImage *origin, QPoint point)
         }
     }
     return newImage;
+}
+
+void PaintArea::redo()
+{
+    if(images.isEmpty() == false)
+    {
+        image = images.pop();
+        update();
+    }
 }

@@ -293,13 +293,8 @@ void MainWindow::on_actionGray_Image_triggered() // Gray Image's slot
     area->doGrey();
 }
 
-/*
- * Summary: Slot of light ajustment slider
- * position varies from -255~255
- *
- */
-void MainWindow::on_lightHorizontalSlider_sliderMoved(int position)
+
+void MainWindow::on_actionRedo_triggered()
 {
-    position = 0;
-    return;
+    area->redo();
 }

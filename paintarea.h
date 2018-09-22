@@ -7,6 +7,7 @@
 #include <QPoint>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QStack>
 
 class PaintArea : public QWidget
 {
@@ -47,6 +48,8 @@ public:
     void setPenWidth(int width);
     void setPenColor(QColor color);
     void setBrushColor(QColor color);
+
+    void redo();
 
     enum ShapeType
     {
@@ -120,6 +123,7 @@ private:
         else
             return b;
     }
+    QStack<QImage> images;
 };
 
 #endif // PAINTAREA_H
