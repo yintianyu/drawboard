@@ -208,6 +208,8 @@ void PaintArea::setImageSize(int width, int height)
 {
     QImage newImage(width, height, QImage::Format_RGB32);
     image = newImage;
+    images.clear();
+    images.push(image);
     update();
 }
 
@@ -242,6 +244,8 @@ bool PaintArea::openImage(const QString &fileName)
     QSize newSize = loadedImage.size();
     setImageSize(newSize.width(), newSize.height());
     image = loadedImage;
+    images.clear();
+    images.push(image);
     modified = false;
     update();
     return true;
@@ -405,7 +409,7 @@ QImage* PaintArea::blur(QImage *origin, QPoint point)
                          {0,1,3,1,0},
                          {0,0,1,0,0}};
     int kernelSize = 5;
-    int penSize = 10; // r = 10
+    int penSize = (penWidth + 1) / 2; // r = 10
     int sumKernel = 27;
     int r, g, b;
     QColor color;
@@ -446,7 +450,7 @@ QImage* PaintArea::sharpen(QImage *origin, QPoint point)
 
     int kernelSize = 3;
     int sumKernel = 1;
-    int penSize = 5;
+    int penSize = (penWidth + 1) / 2;
     int r, g, b;
     QColor color;
     int x_min = largerOne(point.x() - penSize, kernelSize / 2);
